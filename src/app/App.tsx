@@ -1,3 +1,3 @@
 export function App() {
-  return <div>Field Manager</div>
+  return <div>Field Manager</div>;
 }
