@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { useFields, useSelectedField } from "@/features/fields";
+import { useFields, useSelectedField, useSelectField } from "@/features/fields";
 import {
   DEFAULT_POINT_FILTERS,
   filterPoints,
@@ -10,6 +10,7 @@ import { usePointsStore } from "@/features/points/stores/points.store";
 import { PointFilters } from "@/features/points/components/ui/PointFilters";
 import { PointForm } from "@/features/points/components/ui/PointForm";
 import { PointList } from "@/features/points/components/ui/PointList";
+import type { MonitoringPoint } from "@/features/points/types/point";
 
 export function Points() {
   const points = usePointsStore((state) => state.points);
@@ -17,6 +18,9 @@ export function Points() {
   const setDraft = usePointsStore((state) => state.setDraft);
   const addPoint = usePointsStore((state) => state.addPoint);
   const removePoint = usePointsStore((state) => state.removePoint);
+  const focusedPointId = usePointsStore((state) => state.focusedPointId);
+  const focusPoint = usePointsStore((state) => state.focusPoint);
+  const selectField = useSelectField();
   const fields = useFields();
   const selectedField = useSelectedField();
   const [filters, setFilters] = useState(DEFAULT_POINT_FILTERS);
@@ -28,6 +32,16 @@ export function Points() {
     [points, filters, selectedFieldId],
   );
   const fieldNames = new Map(fields.map((field) => [field.id, field.name]));
+
+  // Works like a field card: a second click on the focused point clears it.
+  function handleFocus(point: MonitoringPoint) {
+    if (point.id === focusedPointId) {
+      focusPoint(null);
+      return;
+    }
+    selectField(point.fieldId);
+    focusPoint(point.id);
+  }
 
   return (
     <section className="flex flex-col gap-4">
@@ -66,6 +80,8 @@ export function Points() {
             <PointList
               points={visiblePoints}
               fieldNames={fieldNames}
+              focusedPointId={focusedPointId}
+              onFocus={handleFocus}
               onDelete={removePoint}
             />
           ) : isDefaultPointFilters(filters) ? (

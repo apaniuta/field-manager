@@ -1,5 +1,6 @@
 import { cn } from "@/shared/lib/utils";
 import { formatArea } from "@/shared/lib/format";
+import { selectableCardClassName } from "@/shared/lib/selection";
 import type { Field } from "@/features/fields/types/field";
 
 interface FieldListProps {
@@ -26,9 +27,7 @@ export function FieldList({
               onClick={() => onSelect(field.id)}
               className={cn(
                 "w-full rounded-lg border px-3 py-2 text-left transition-colors",
-                isSelected
-                  ? "border-amber-600 bg-amber-50 text-amber-900"
-                  : "border-blue-600/30 hover:bg-blue-50",
+                selectableCardClassName(isSelected),
               )}
             >
               <div className="font-medium">{field.name}</div>

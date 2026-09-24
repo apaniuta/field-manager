@@ -14,9 +14,12 @@ interface NewPointInput extends PointDraft {
 interface PointsState {
   points: MonitoringPoint[];
   draft: PointDraft | null;
+  /** Point selected in the list; the map flies to it. */
+  focusedPointId: string | null;
   setDraft: (draft: PointDraft | null) => void;
   addPoint: (input: NewPointInput) => void;
   removePoint: (id: string) => void;
+  focusPoint: (id: string | null) => void;
 }
 
 export const usePointsStore = create<PointsState>()(
@@ -24,6 +27,7 @@ export const usePointsStore = create<PointsState>()(
     (set) => ({
       points: [],
       draft: null,
+      focusedPointId: null,
       setDraft: (draft) => set({ draft }),
       addPoint: (input) =>
         set((state) => ({
@@ -41,11 +45,14 @@ export const usePointsStore = create<PointsState>()(
       removePoint: (id) =>
         set((state) => ({
           points: state.points.filter((point) => point.id !== id),
+          focusedPointId:
+            state.focusedPointId === id ? null : state.focusedPointId,
         })),
+      focusPoint: (id) => set({ focusedPointId: id }),
     }),
     {
       name: "field-manager/points",
-      // Only saved points survive a reload; the draft is transient UI state.
+      // Only saved points survive a reload; draft and focus are transient UI state.
       partialize: (state) => ({ points: state.points }),
     },
   ),
