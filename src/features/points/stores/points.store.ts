@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { parsePersistedPoints } from "@/features/points/lib/parsePersistedPoints";
 import type {
   MonitoringPoint,
   PointDraft,
@@ -63,6 +64,10 @@ export const usePointsStore = create<PointsState>()(
       name: "field-manager/points",
       // Only saved points survive a reload; draft and focus are transient UI state.
       partialize: (state) => ({ points: state.points }),
+      merge: (persisted, current) => ({
+        ...current,
+        points: parsePersistedPoints(persisted),
+      }),
     },
   ),
 );

@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.env*
 
 # Editor directories and files
 .vscode/*
@@ -25,6 +26,3 @@ dist-ssr
 
 # Claude Code
 .claude/
-CLAUDE.md
-claude-code-plan-step-1.md
-claude-code-plan-step-2.md

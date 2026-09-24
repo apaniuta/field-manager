@@ -4,6 +4,7 @@ import { cn } from "@/shared/lib/utils";
 import { formatDateTime } from "@/shared/lib/format";
 import { selectableCardClassName } from "@/shared/lib/selection";
 import { POINT_TYPE_META } from "@/features/points/lib/pointTypeMeta";
+import { DeletePointDialog } from "@/features/points/components/ui/DeletePointDialog";
 import type { MonitoringPoint } from "@/features/points/types/point";
 
 interface PointListItemProps {
@@ -57,15 +58,16 @@ export function PointListItem({
           </span>
         </span>
       </button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        className="mt-2 mr-2"
-        aria-label="Видалити точку"
-        onClick={() => onDelete(point.id)}
-      >
-        <Trash2 />
-      </Button>
+      <DeletePointDialog onConfirm={() => onDelete(point.id)}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="mt-2 mr-2"
+          aria-label="Видалити точку"
+        >
+          <Trash2 />
+        </Button>
+      </DeletePointDialog>
     </li>
   );
 }

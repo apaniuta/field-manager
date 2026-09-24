@@ -17,7 +17,9 @@ export function MapView({ children }: { children?: ReactNode }) {
   const [tileError, setTileError] = useState(false);
 
   return (
-    <div className="relative h-full w-full">
+    // `isolate` keeps Leaflet's pane z-indexes (400–1000) inside the map, so
+    // dialogs portalled to <body> (z-50) are not covered by the map.
+    <div className="relative isolate h-full w-full">
       {tileError && (
         <Alert
           variant="destructive"

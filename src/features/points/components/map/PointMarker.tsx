@@ -1,9 +1,11 @@
+import { memo } from "react";
 import { Marker, Popup } from "react-leaflet";
 import { Button } from "@/shared/components/ui/button";
 import { formatDateTime } from "@/shared/lib/format";
 import { formatLatLng, toMgrs } from "@/shared/lib/geo/coordinates";
 import { POINT_ICONS } from "@/features/points/lib/pointIcons";
 import { POINT_TYPE_META } from "@/features/points/lib/pointTypeMeta";
+import { DeletePointDialog } from "@/features/points/components/ui/DeletePointDialog";
 import type { MonitoringPoint } from "@/features/points/types/point";
 
 interface PointMarkerProps {
@@ -11,7 +13,14 @@ interface PointMarkerProps {
   onDelete: (id: string) => void;
 }
 
-export function PointMarker({ point, onDelete }: PointMarkerProps) {
+/**
+ * `memo`, like `FieldPolygon`: `PointsLayer` re-renders on every draft change
+ * (each click inside the field), while `point` and `onDelete` stay the same.
+ */
+export const PointMarker = memo(function PointMarker({
+  point,
+  onDelete,
+}: PointMarkerProps) {
   return (
     <Marker position={point.position} icon={POINT_ICONS[point.type]}>
       <Popup>
@@ -31,21 +40,15 @@ export function PointMarker({ point, onDelete }: PointMarkerProps) {
               {toMgrs(point.position) ?? "Не вдалося обчислити"}
             </dd>
           </dl>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={(event) => {
-              // Deleting unmounts the popup before the click bubbles to the map,
-              // so Leaflet no longer sees it came from a popup and would treat it
-              // as a map click (creating a draft). Stop it here.
-              event.stopPropagation();
-              onDelete(point.id);
-            }}
-          >
-            Видалити
-          </Button>
+          {/* The dialog renders in a portal outside the map, so confirming is
+              not a map click and cannot create a draft. */}
+          <DeletePointDialog onConfirm={() => onDelete(point.id)}>
+            <Button variant="destructive" size="sm">
+              Видалити
+            </Button>
+          </DeletePointDialog>
         </div>
       </Popup>
     </Marker>
   );
-}
+});
