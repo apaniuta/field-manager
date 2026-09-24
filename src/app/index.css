@@ -132,3 +132,7 @@ body {
     @apply font-sans;
   }
 }
+
+.field-polygon-selectable {
+  cursor: pointer;
+}
