@@ -22,6 +22,15 @@ interface PointsState {
   focusPoint: (id: string | null) => void;
 }
 
+// Not `crypto.randomUUID`: it exists only in secure contexts (HTTPS, localhost),
+// so it is undefined when a tablet opens the dev server by LAN IP over HTTP.
+// The `uuid` package would work (it uses `crypto.getRandomValues`, available
+// everywhere), but ids only need to be unique within this browser's storage,
+// so a dependency is not worth it.
+function createPointId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
 export const usePointsStore = create<PointsState>()(
   persist(
     (set) => ({
@@ -35,7 +44,7 @@ export const usePointsStore = create<PointsState>()(
             ...state.points,
             {
               ...input,
-              id: crypto.randomUUID(),
+              id: createPointId(),
               description: input.description.trim(),
               createdAt: new Date().toISOString(),
             },
