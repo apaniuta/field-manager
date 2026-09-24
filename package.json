@@ -11,12 +11,14 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@turf/boolean-point-in-polygon": "^7.4.0",
     "leaflet": "^1.9.4",
     "mgrs": "^2.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-leaflet": "^5.0.0",
+    "tailwindcss": "^4.3.3",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
