@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui/select";
 import {
   DEFAULT_POINT_FILTERS,
-  isDefaultPointFilters,
+  hasActiveFilters,
   type PointFilters as PointFiltersValue,
 } from "@/features/points/lib/filterPoints";
 import { POINT_TYPE_META } from "@/features/points/lib/pointTypeMeta";
@@ -68,7 +68,7 @@ export function PointFilters({ filters, onChange }: PointFiltersProps) {
           <SelectItem value="oldest">Спочатку старі</SelectItem>
         </SelectContent>
       </Select>
-      {!isDefaultPointFilters(filters) && (
+      {hasActiveFilters(filters) && (
         <Button
           variant="ghost"
           size="sm"

@@ -12,12 +12,9 @@ export const DEFAULT_POINT_FILTERS: PointFilters = {
   sort: "newest",
 };
 
-export function isDefaultPointFilters(filters: PointFilters): boolean {
-  return (
-    filters.type === DEFAULT_POINT_FILTERS.type &&
-    filters.query === DEFAULT_POINT_FILTERS.query &&
-    filters.sort === DEFAULT_POINT_FILTERS.sort
-  );
+/** Sort only reorders, so it never hides points and does not count as a filter. */
+export function hasActiveFilters(filters: PointFilters): boolean {
+  return filters.type !== "all" || filters.query.trim() !== "";
 }
 
 /**

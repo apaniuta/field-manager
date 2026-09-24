@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
 import { useFields, useSelectedField, useSelectField } from "@/features/fields";
 import {
   DEFAULT_POINT_FILTERS,
   filterPoints,
-  isDefaultPointFilters,
+  hasActiveFilters,
 } from "@/features/points/lib/filterPoints";
 import { usePointsStore } from "@/features/points/stores/points.store";
 import { PointFilters } from "@/features/points/components/ui/PointFilters";
@@ -70,9 +69,7 @@ export function Points() {
       )}
 
       {points.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Ще немає точок. Виберіть поле і клацніть усередині нього на карті.
-        </p>
+        <p className="text-sm text-muted-foreground">Ще немає точок.</p>
       ) : (
         <>
           <PointFilters filters={filters} onChange={setFilters} />
@@ -84,22 +81,14 @@ export function Points() {
               onFocus={handleFocus}
               onDelete={removePoint}
             />
-          ) : isDefaultPointFilters(filters) ? (
-            // Default filters can only come up empty when scoped to a field.
-            <p className="text-sm text-muted-foreground">
-              У цьому полі ще немає точок.
-            </p>
           ) : (
-            <div className="flex flex-col items-start gap-2 text-sm">
-              <p className="text-muted-foreground">Нічого не знайдено</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setFilters(DEFAULT_POINT_FILTERS)}
-              >
-                Скинути фільтри
-              </Button>
-            </div>
+            // Without active filters the list can only be empty when scoped to a field.
+            // "Reset" lives in PointFilters, so the empty state only explains.
+            <p className="text-sm text-muted-foreground">
+              {hasActiveFilters(filters)
+                ? "Нічого не знайдено"
+                : "У цьому полі ще немає точок."}
+            </p>
           )}
         </>
       )}
