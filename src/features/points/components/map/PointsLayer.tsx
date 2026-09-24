@@ -1,9 +1,12 @@
 import { CircleMarker } from "react-leaflet";
 import { useSelectedField } from "@/features/fields";
 import { usePointsStore } from "@/features/points/stores/points.store";
+import { PointMarker } from "@/features/points/components/map/PointMarker";
 
 export function PointsLayer() {
+  const points = usePointsStore((state) => state.points);
   const draft = usePointsStore((state) => state.draft);
+  const removePoint = usePointsStore((state) => state.removePoint);
   const selectedField = useSelectedField();
 
   // A draft from a previously selected field is simply not shown.
@@ -11,6 +14,9 @@ export function PointsLayer() {
 
   return (
     <>
+      {points.map((point) => (
+        <PointMarker key={point.id} point={point} onDelete={removePoint} />
+      ))}
       {isDraftVisible && (
         <CircleMarker
           center={draft.position}

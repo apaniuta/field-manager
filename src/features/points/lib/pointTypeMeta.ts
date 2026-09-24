@@ -1,16 +1,16 @@
-import { Bug, FlaskConical, Leaf, MapPin, type LucideIcon } from "lucide-react";
 import type { PointType } from "@/features/points/types/point";
 
 interface PointTypeMeta {
   label: string;
+  /** Single letter shown inside the marker circle. */
+  letter: string;
   /** Hex color, shared by list badges and map marker icons. */
   color: string;
-  Icon: LucideIcon;
 }
 
 export const POINT_TYPE_META: Record<PointType, PointTypeMeta> = {
-  soil_sample: { label: "Проба ґрунту", color: "#92400e", Icon: FlaskConical },
-  pests: { label: "Шкідники", color: "#dc2626", Icon: Bug },
-  plant_disease: { label: "Хвороби рослин", color: "#7c3aed", Icon: Leaf },
-  other: { label: "Інше", color: "#475569", Icon: MapPin },
+  soil_sample: { label: "Проба ґрунту", letter: "Г", color: "#92400e" },
+  pests: { label: "Шкідники", letter: "Ш", color: "#dc2626" },
+  plant_disease: { label: "Хвороби рослин", letter: "Х", color: "#7c3aed" },
+  other: { label: "Інше", letter: "І", color: "#475569" },
 };
