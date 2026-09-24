@@ -7,8 +7,10 @@ interface AppLayoutProps {
 
 export function AppLayout({ sidebar, children }: AppLayoutProps) {
   return (
-    <div className="flex h-screen w-screen">
-      <aside className="w-80 shrink-0 overflow-y-auto border-r p-4">
+    // Only the sidebar scrolls: the page itself never does, so opening a
+    // select or focusing a field cannot scroll the map out of view.
+    <div className="flex h-dvh overflow-hidden">
+      <aside className="w-80 shrink-0 overflow-y-auto border-r bg-sidebar">
         {sidebar}
       </aside>
       <main className="min-w-0 flex-1">{children}</main>

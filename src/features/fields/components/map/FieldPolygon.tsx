@@ -16,6 +16,10 @@ const ACTIVE_STYLE: PathOptions = {
   fillOpacity: 0.4,
 };
 
+// The field name tooltip is a hover hint. On touch screens Leaflet opens it on
+// tap and it stays at the tap point, covering a newly added point marker.
+const CAN_HOVER = window.matchMedia("(hover: hover)").matches;
+
 interface FieldPolygonProps {
   field: Field;
   isSelected: boolean;
@@ -50,7 +54,7 @@ export const FieldPolygon = memo(function FieldPolygon({
       pathOptions={isSelected ? ACTIVE_STYLE : INACTIVE_STYLE}
       eventHandlers={{ click: handleClick }}
     >
-      <Tooltip sticky>{field.name}</Tooltip>
+      {CAN_HOVER && <Tooltip sticky>{field.name}</Tooltip>}
     </Polygon>
   );
 });
