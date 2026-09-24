@@ -24,5 +24,12 @@ export default defineConfig([
       "@typescript-eslint/consistent-type-imports": "error",
     },
   },
+  {
+    // shadcn-generated files export variants next to components; we don't edit them.
+    files: ["src/shared/components/ui/**/*.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
   eslintConfigPrettier,
 ]);

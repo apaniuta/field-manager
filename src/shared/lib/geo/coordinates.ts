@@ -64,3 +64,12 @@ export function toMgrs(point: LatLng, precision = 5): string {
 
   return spaced;
 }
+
+/** Like `toMgrs`, but returns null instead of throwing, for display-only use. */
+export function tryToMgrs(point: LatLng): string | null {
+  try {
+    return toMgrs(point);
+  } catch {
+    return null;
+  }
+}
