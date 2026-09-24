@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# Field Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Веб-застосунок для управління сільськогосподарськими полями: інтерактивна карта з полями (GeoJSON), панель зі списком і базовою інформацією про вибране поле. Тестове завдання на позицію Frontend Engineer. Без бекенду — лише mock-дані.
 
-Currently, two official plugins are available:
+> Документ описує стан проєкту після Кроку 2 (карта + поля). Моніторингові точки, MGRS, фільтри/пошук/сортування та адаптив під планшет — у наступних кроках.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Запуск
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Інші команди:
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm run typecheck   # tsc -b
+npm run lint        # eslint .
+npm run pretty       # prettier --write .
+npm run pretty:check # prettier --check .
+npm run build        # tsc -b && vite build
 ```
+
+## Використані технології
+
+- **Vite** — build tool.
+- **React** (остання мажорна версія шаблону `react-ts`) + **TypeScript strict**.
+- **Leaflet** / **react-leaflet** (мажорна версія, сумісна за `peerDependencies` з установленим мажором React).
+- **Tailwind CSS** для стилізації.
+- **shadcn/ui** — компоненти (`Alert`, `Card`) генеруються CLI й живуть у репозиторії як власний код, не як залежність.
+- **Zustand** — по стору на фічу.
+- `mgrs`, `@turf/boolean-point-in-polygon` — встановлені наперед для наступних кроків (моніторингові точки), у Кроці 2 ще не використовуються в UI.
+- **ESLint + Prettier** (з плагіном для Tailwind).
+
+## Архітектурні рішення
+
+**Feature-based структура.** Код організовано за фічами (`src/features/map`, `src/features/fields`), кожна з підпапками `api/`, `components/`, `hooks/`, `stores/`, `types/`. Спільний код — у `src/shared`. Напрямок залежностей односторонній: `app → features → shared`; фіча імпортує іншу фічу лише через її `index.ts` (єдиний дозволений зв'язок у плані проєкту — `points → fields`, коли з'явиться фіча точок). Це командна домовленість, яка перевіряється на code review, а не ESLint-правилом (`no-restricted-imports` свідомо не використовували — це over-engineering для обсягу тестового завдання).
+
+**Стор → контролер усередині карти, а не ref на інстанс карти.** Сайдбар зі списком полів рендериться поза `MapContainer`, тому не має прямого доступу до інстансу Leaflet-карти. Замість проброшування ref, список лише записує вибір у Zustand-стор; окремий компонент `FieldFitController`, який рендериться _всередині_ `MapContainer` і має доступ до `useMap()`, підписується на той самий стор і сам викликає `fitBounds`. Це тримає компоненти карти незалежними від того, хто саме змінив вибір (клік по карті чи по списку).
+
+**Поля рендеряться через `<Polygon>`, а не `<GeoJSON>`.** Це дає прямий контроль над стилем активного/неактивного полігона через пропс `pathOptions`, без обхідних шляхів `<GeoJSON>` для динамічного рестайлінгу окремих feature.
+
+**Конвертація порядку координат ізольована в одному модулі.** GeoJSON зберігає координати як `[lng, lat]`, домен застосунку використовує `{ lat, lng }`. Уся конвертація — в `shared/lib/geo/geometry.ts` (`lngLatToLatLng`, `polygonToLatLngRings`, `getPolygonsBounds`); ніде більше в коді вручну не переставляються координати.
+
+**Стор по фічах, вузькі підписки.** Кожна фіча має власний Zustand-стор (`fields.store.ts`); глобального стору немає. Компоненти підписуються на конкретні поля стору (`useStore(s => s.x)`), а не на весь стор, щоб зайві частини стану не викликали зайвих ререндерів. Похідні значення (наприклад, вибране поле за id) обчислюються поза стором, у хуку `useSelectedField`.
+
+**Controller-View — рекомендація, не жорстка вимога.** Для невеликих компонентів (мало розмітки, як `FieldInfo`, `FieldList`) окремий View-файл не виносили. Компоненти, що рендеряться всередині `MapContainer` (`FieldsLayer`, `FieldFitController`), напряму читають стор і використовують `useMap()` — це їхня природна відповідальність, не порушення шарів.
+
+**Одиниця виміру площі.** У прикладі з ТЗ `"area": 45.2` не має вказаної одиниці виміру. Припущення: вважаємо гектарами. Для поля з ТЗ (`field-1`) це значення залишено без змін, хоча геометрично полігон займає ~78 га — розбіжність свідома, приклад із завдання вважаємо ілюстративним, а не таким, що має відповідати реальній площі полігона. Для решти полів площу порахували через `@turf/area` і округлили до 0.1.
+
+**Без роутингу, TanStack Query, `app/providers`.** Застосунок одноекранний і працює без бекенду (лише mock-дані), тому ці інструменти не додавали — вони б не несли функціональної цінності для цього обсягу завдання.
+
+## Що б я додав, якби мав більше часу
+
+- Моніторингові точки на карті (додавання/видалення, іконки за типом), координати WGS84 + MGRS, форма з типом/описом/датою.
+- Панель фільтрації/пошуку/сортування точок.
+- Повноцінний адаптив під tablet (зараз лейаут фіксований, `sidebar` + `main`).
+- `ErrorBoundary` навколо карти й списку для граційної деградації при неочікуваних помилках рендеру.
+- Юніт-тести для чистої логіки (`parseFields`, `shared/lib/geo`, `filterPoints` у майбутньому) і, можливо, кілька інтеграційних тестів на вибір поля.
+- Дебаунс для пошуку (`useDebounce`) і мемоізація важких обчислень у списку точок, якщо дані виростуть.
+- Персистентність вибору/фільтрів (наприклад, у `localStorage`), щоб стан не губився при перезавантаженні сторінки.
