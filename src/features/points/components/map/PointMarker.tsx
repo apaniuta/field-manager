@@ -1,7 +1,7 @@
 import { Marker, Popup } from "react-leaflet";
 import { Button } from "@/shared/components/ui/button";
 import { formatDateTime } from "@/shared/lib/format";
-import { formatLatLng, tryToMgrs } from "@/shared/lib/geo/coordinates";
+import { formatLatLng, toMgrs } from "@/shared/lib/geo/coordinates";
 import { POINT_ICONS } from "@/features/points/lib/pointIcons";
 import { POINT_TYPE_META } from "@/features/points/lib/pointTypeMeta";
 import type { MonitoringPoint } from "@/features/points/types/point";
@@ -28,7 +28,7 @@ export function PointMarker({ point, onDelete }: PointMarkerProps) {
             <dd className="font-mono">{formatLatLng(point.position)}</dd>
             <dt className="text-muted-foreground">MGRS</dt>
             <dd className="font-mono">
-              {tryToMgrs(point.position) ?? "Не вдалося обчислити"}
+              {toMgrs(point.position) ?? "Не вдалося обчислити"}
             </dd>
           </dl>
           <Button

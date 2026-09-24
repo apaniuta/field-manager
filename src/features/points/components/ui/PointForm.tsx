@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { formatLatLng, tryToMgrs } from "@/shared/lib/geo/coordinates";
+import { formatLatLng, toMgrs } from "@/shared/lib/geo/coordinates";
 import type { LatLng } from "@/shared/types/geo";
 import { POINT_TYPE_META } from "@/features/points/lib/pointTypeMeta";
 import {
@@ -45,7 +45,7 @@ export function PointForm({
   const typeId = useId();
   const descriptionId = useId();
 
-  const mgrs = tryToMgrs(position);
+  const mgrs = toMgrs(position);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { useFieldsStore } from "@/features/fields/stores/fields.store";
 import { useSelectedField } from "@/features/fields/hooks/useSelectedField";
-import { getPolygonsBounds } from "@/shared/lib/geo/geometry";
+import { polygonToLatLngRings } from "@/shared/lib/geo/geometry";
 
 /**
  * The sidebar list lives outside `MapContainer`, so it has no access to the
@@ -22,7 +23,11 @@ export function FieldFitController() {
 
     if (polygons.length === 0) return;
 
-    map.fitBounds(getPolygonsBounds(polygons), { padding: [40, 40] });
+    // Leaflet computes the bounding box from all ring points itself.
+    const points = polygons.flatMap((polygon) =>
+      polygonToLatLngRings(polygon).flat(),
+    );
+    map.fitBounds(L.latLngBounds(points), { padding: [40, 40] });
   }, [map, fields, selectedField]);
 
   return null;
